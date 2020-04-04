@@ -85,41 +85,6 @@ function importHTML(src, async=true, forceReload=false){
 	});
 }
 
-/*function importHTML(src, forceReload=false){
-	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState == 4 && xhr.status == 200) {
-			var resText = xhr.responseText;
-			window.resText = resText;
-
-			var nDiv = document.createElement("div");
-			nDiv.innerHTML = resText;
-			var template_html = nDiv.querySelectorAll("template")[0];
-			var script = nDiv.querySelectorAll("script")[0].innerHTML;
-			
-			class customElement extends HTMLElement{
-				constructor(){
-					var el_super = super();
-					var el_this = this;
-
-					setTimeout(function(){
-						var shadowRoot = el_super.attachShadow({mode: 'open'});
-						shadowRoot.innerHTML = template_html.innerHTML;
-						
-						if(typeof el_this.compiled == "function") el_this.compiled(el_super, shadowRoot);
-					},1);
-				}
-			}
-			var func = new Function("template, importHTML, importScript, customElement", script);
-			var newClass = func(template_html, importHTML, importScript, customElement);
-
-			window.customElements.define(template_html.getAttribute("tag-name"), newClass);
-		}
-	};
-	xhr.open("GET", src, true);
-	xhr.send();
-}*/
-
 window.customElements.define("import-html", class extends HTMLElement{
 	constructor(){
 		var el_super = super();
