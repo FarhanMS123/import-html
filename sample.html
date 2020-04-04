@@ -1,0 +1,38 @@
+<!-- 
+	Imported via :
+	<import-html src="./sample.html"></import-html>
+
+	There is only 2 elements in root, <template> and <script>
+	
+	for <template> there are some attributes that could be used
+		- export-type : custom-element/inserted-element
+		- tag-name : the-tag-name-of-element-desperated-with-strip
+
+ -->
+
+<template tag-name="text-colorize">
+	<!-- write down script here -->
+</template>
+
+<script> //this is actually a class
+	/** 
+	 * this is script for main script.
+	 * We will use `template` as variable to edit and control class of element.
+	 * and importHTML(src) to import another element to the script.
+	 */
+
+	// template.element
+	// template.shadowRoot
+	
+	// Constructed
+	/* compiled(element, shadowRoot){
+		// write your script here
+		// template.shadowRoot will be available while export type setted to "custom-element"
+		console.log(this == element);
+	} */
+	return class extends customElement{
+		compiled(element, shadowRoot){
+			console.log(this == element);
+		}
+	}
+</script>
