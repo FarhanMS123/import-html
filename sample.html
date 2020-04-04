@@ -30,6 +30,8 @@
 		// template.shadowRoot will be available while export type setted to "custom-element"
 		console.log(this == element);
 	} */
+
+	// https://stackoverflow.com/q/55932792/5832341
 	return class extends customElement{
 		compiled(element, shadowRoot){
 			console.log(this == element);
