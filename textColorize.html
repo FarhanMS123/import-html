@@ -1,0 +1,89 @@
+<!-- 
+	Imported via :
+	<import-html src="./sample.html"></import-html>
+
+	There is only 2 elements in root, <template> and <script>
+	
+	for <template> there are some attributes that could be used
+		- export-type : custom-element/inserted-element
+		- tag-name : the-tag-element <-- this used for named the custom element. require 2 words.
+
+ -->
+
+<div tag-name="text-colorize" export-type="custom-element" use-shadowRoot=true>
+	<p>new blocks</p>
+	<style>span, p{display:block; font-weight: bold; color:purple; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}</style>
+	<span></span>
+</div>
+
+<script>
+	// Main Script
+
+	/** 
+	 * This script would be called once for every <import-html>.
+	 * You would return a class that extends `customElement`.
+	 * You could import another HTML or javascript via `importHTML` and `importScript`
+	 * You could edit the template above via `template`.
+	 * Attention to do `importHTML`, `importScript`, and `template` ONLY BEFORE returning 
+	 * class that extends `customElement`
+	 * 
+	 * template<HTMLDivElement>, importHTML<function>, importScript<function>, customElement<class extends HTMLElement>
+	 */
+
+	 /**
+	  * importHTML(src, async=true, forceReload=false)
+	  * importScript(src, async=true, forceReload=false)
+	  * 
+	  * these functions above will get a script or html via XMLHTTPRequest,
+	  * by default it would run async. but you could set it as false if you
+	  * want to request via sync script. For async, you could set it as true
+	  * or you could set it as function(ret){}
+	  * 
+	  * before these get the script, these will check if the source ever get.
+	  * If it knows that the source is ever get, if forceReload is false, it
+	  * wouldn't do the job again, and it would return false.
+	  * 
+	  * After it done getting the data and execute it, it would return to true.
+   	  */
+	
+	/** 
+	 * template<HTMLDivElement>
+	 * 		.tagName
+	 * 		.exportType
+	 * 		.useShadowRoot
+	 */
+
+	// https://www.webcomponents.org/introduction
+	// https://gist.github.com/FarhanMS123/33f2db7d42aa987ee9000b961cfaad4d
+	return class extends customElement{
+		beforeCompiled(element){
+			/* before it compiled to customElement or insert it, 
+			   you could edit the entire class and element here. */
+			if(template.getAttribute("export-type") == "inserted-element" || template.useShadowRoot == false) 
+				template.querySelectorAll("span")[0].innerHTML = element.innerHTML;
+		}
+		compiled(element, shadowRoot){
+			/* shadowRoot will be undefined if use-shadowRoot set as false, or 
+			     export-type set to inserted-element. this property would be
+			        useless while export-type setted as inserted-element */
+			if(shadowRoot) shadowRoot.querySelectorAll("span")[0].innerHTML = element.innerHTML;
+		}
+
+		// https://stackoverflow.com/q/55932792/5832341
+		static get observedAttributes() {
+			return ['data-color'];
+		}
+		attributeChangedCallback(name, oldValue, newValue) {
+			/* this function would only response for every attributes
+			        that got observed in observedAttributes */
+		}
+		/* functions below would be called while `element.dataColor` or
+		          `element.dataColor="hexcode"` injected. */
+		get dataColor(){
+			return this.getAttribute("data-color");
+		}
+		set dataColor(val){
+			return this.setAttribute("data-color", val);
+		}
+	}
+</script>

@@ -1,3 +1,8 @@
+/**
+ * importHTML V1.0.0
+ * functions : importHTML, importScript
+ */
+
 function mainImporter(func, src, async, forceReload, onreadystatechange){
 	if(typeof func.srcList != "object" || func.srcList.constructor != Array) func.srcList = [];
 	if(func.srcList.indexOf(src) > -1 && forceReload==false){
@@ -5,7 +10,6 @@ function mainImporter(func, src, async, forceReload, onreadystatechange){
 		return false;
 	}
 	func.srcList.push(src);
-	console.log([func]);
 
 	var lastSrc = src;
 	function updatedSource(upSrc){
@@ -59,8 +63,12 @@ function importHTML(src, async=true, forceReload=false){
 		var importHTML = ev.updatedImportHTML;
 
 		var nDiv = document.createElement("div"); nDiv.innerHTML = xhr.responseText;
-		var template_html = nDiv.querySelectorAll("template")[0];
+		var template_html = nDiv.querySelectorAll("div")[0];
 		var script = nDiv.querySelectorAll("script")[0].innerHTML;
+
+		var tagName = template_html.tagName = template_html.getAttribute("tag-name"),
+			exportType = template_html.exportType = template_html.getAttribute("export-type") || "custom-element",
+			useShadowRoot = template_html.useShadowRoot = template_html.getAttribute("use-shadowRoot") == null ? true : eval(template_html.getAttribute("use-shadowRoot"));
 		
 		class customElement extends HTMLElement{
 			constructor(){
@@ -68,8 +76,28 @@ function importHTML(src, async=true, forceReload=false){
 				var el_this = this;
 
 				setTimeout(function(){
-					var shadowRoot = el_super.attachShadow({mode: 'open'});
-					shadowRoot.innerHTML = template_html.innerHTML;
+					if(typeof el_this.beforeCompiled == "function") el_this.beforeCompiled(el_super);
+
+					var shadowRoot;
+					if(exportType == "custom-element"){
+						if(useShadowRoot){
+							shadowRoot = el_super.attachShadow({mode: 'open'});
+							shadowRoot.innerHTML = template_html.innerHTML;
+						}else{
+							el_super.innerHTML = template_html.innerHTML;
+						}
+					}else if(exportType == "inserted-element"){
+						var nodesTemplate = template_html.children;
+						var lastNodes = template_html.lastElementChild;
+
+						el_super.parentElement.replaceChild(lastNodes, el_super);
+
+						for(var i=nodesTemplate.length - 1; i>=0; i--){
+							var lastNodes2 = nodesTemplate[i];
+							lastNodes.parentElement.insertBefore(lastNodes2, lastNodes);
+							lastNodes = lastNodes2;
+						}
+					}
 					
 					if(typeof el_this.compiled == "function") el_this.compiled(el_super, shadowRoot);
 				},1);
@@ -78,7 +106,7 @@ function importHTML(src, async=true, forceReload=false){
 		var func = new Function("template, importHTML, importScript, customElement", script);
 		var newClass = func(template_html, importHTML, importScript, customElement);
 
-		window.customElements.define(template_html.getAttribute("tag-name"), newClass);
+		window.customElements.define(tagName, newClass);
 
 		if(typeof async == "function") async(true);
 		return true
